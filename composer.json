@@ -1,5 +1,5 @@
 {
-	"name": "pdeans/Miva/Provision",
+	"name": "pdeans/Miva-Provision",
 	"description": "Miva remote provision PHP library.",
 	"license": "MIT",
 	"keywords": ["Miva provision", "Miva remote provision", "Miva", "remote provision", "provision"],
