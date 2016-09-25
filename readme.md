@@ -1,6 +1,6 @@
 # Miva Remote Provision PHP Library
 
-###Usage via Composer:
+####Usage via Composer:
 ```
 composer require pdeans/miva-provision
 ```
