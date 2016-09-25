@@ -2,7 +2,7 @@
 
 use pdeans\Miva\Provision\Manager;
 
-class ProvisionManagerTest extends PHPUnit_Framework_TestCase
+class ProvisionManagerTest extends \PHPUnit_Framework_TestCase
 {
 
 	public function testProvisionManager($store_code = 'PS', $url = 'http://test.url.com', $token = 'testing123')
