@@ -63,29 +63,8 @@ class Manager
 		return $this->builder->cdata($value);
 	}
 
-	public function create($prv_tag_name, $attributes = array())
+	public function create($prv_tag_name, array $tags)
 	{
-		$this->builder->addPrvTag($prv_tag_name, $attributes);
-
-		return $this;
-	}
-
-	public function tags($tags)
-	{
-		$this->builder->addTags($tags);
-
-		return $this;
-	}
-
-	public function tag($tag_name, $value = '')
-	{
-		$this->builder->addTag($tag_name, $value);
-
-		return $this;
-	}
-
-	public function get()
-	{
-		return $this->builder->getPrvTag();
+		return $this->builder->getPrvTag($this->builder->addPrvTag($prv_tag_name, $tags));
 	}
 }

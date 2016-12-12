@@ -26,7 +26,7 @@ class Builder
 		return $this->store_code;
 	}
 
-	public function addPrvTag($tag_name, $attributes = array())
+	public function addPrvTag($tag_name, array $tags)
 	{
 		$this->writer->openMemory();
 		$this->writer->setIndent(true);
@@ -34,14 +34,29 @@ class Builder
 
 		$this->writer->startElement($tag_name);
 
-		if (!empty($attributes)) {
-			foreach ($attributes as $name => $value) {
+		if (isset($tags['@attributes'])) {
+			if (!is_array($tags['@attributes'])) {
+				throw new \Exception('Expected array for @attributes key');
+			}
+
+			foreach ($tags['@attributes'] as $name => $value) {
 				$this->writer->writeAttribute($name, $value);
 			}
 		}
+
+		if (isset($tags['@value'])) {
+			$this->writer->writeRaw($tags['@value']);
+		}
+		else if (isset($tags['@tags'])) {
+			if (!is_array($tags['@tags'])) {
+				throw new \Exception('Expected array for @tags key');
+			}
+
+			$this->addTags($tags['@tags']);
+		}
 	}
 
-	public function addTags(array $tags)
+	protected function addTags(array $tags)
 	{
 		foreach ($tags as $name => $value) {
 			if (is_array($value)) {
@@ -54,6 +69,10 @@ class Builder
 					}
 				}
 				else if ($name === '@attributes') {
+					if (!is_array($tags['@attributes'])) {
+						throw new \Exception('Expected array for @attributes key');
+					}
+
 					foreach ($value as $attr_name => $attr_value) {
 						$this->writer->writeAttribute($attr_name, $attr_value);
 					}
@@ -76,7 +95,7 @@ class Builder
 		}
 	}
 
-	public function addTag($tag_name, $value = '')
+	protected function addTag($tag_name, $value = '')
 	{
 		$this->writer->startElement($tag_name);
 
