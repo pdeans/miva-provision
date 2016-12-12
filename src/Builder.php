@@ -45,16 +45,11 @@ class Builder
 	{
 		foreach ($tags as $name => $value) {
 			if (is_array($value)) {
-				if (array_values($value) === $value) {
+				// Check if this is a numeric array
+				if ($value === array_values($value)) {
 					foreach ($value as $tags) {
 						$this->writer->startElement($name);
-
-						$tag_names = array_keys($tags);
-
-						foreach ($tag_names as $tag_name) {
-							$this->addTag($tag_name, $tags[$tag_name]);
-						}
-
+						$this->addTags($tags);
 						$this->writer->endElement();
 					}
 				}
@@ -84,7 +79,11 @@ class Builder
 	public function addTag($tag_name, $value = '')
 	{
 		$this->writer->startElement($tag_name);
-		$this->writer->writeRaw($value);
+
+		if ($value !== 'SELF_CLOSING') {
+			$this->writer->writeRaw($value);
+		}
+
 		$this->writer->endElement();
 	}
 
