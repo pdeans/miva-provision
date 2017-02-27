@@ -70,34 +70,49 @@ class HttpClient
 
 		// Make curl request, store response data and status code
 		$response = curl_exec($ch);
-		$status   = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		// Create response object to hold response data
+		$response_obj = new \stdClass;
+
+		// Convert the xml response into simple xml element
+		$sxe_response = simplexml_load_string($response);
+
+		$response_obj->status   = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$response_obj->xml      = $response;
+		$response_obj->response = $sxe_response;
 
 		// If there was a curl error
 		if (curl_errno($ch)) {
-			throw new \Exception('Curl Error: ('.curl_error($ch).')', curl_errno($ch));
+			$response_obj->curl_errorno = curl_errno($ch);
+			$response_obj->curl_error   = curl_error($ch);
 		}
 
 		// Close the curl handler
 		curl_close($ch);
 
-		// Bad status response from curl request
-		if ($status >= 400 && $status <= 599) {
-			throw new \Exception('Curl request responded with bad status ('.$status.')', $status);
+		// Check for response errors
+		$errors = $this->checkErrors($sxe_response);
+
+		if (!empty($errors)) {
+			$response_obj->errors = $errors;
 		}
 
-		return $this->getResponseData($response);
+		// Check for response warnings
+		$warnings = $this->checkWarnings($sxe_response);
+
+		if (!empty($warnings)) {
+			$response_obj->warnings = $warnings;
+		}
+
+		return $response_obj;
 	}
 
-	protected function getResponseData($response)
+	protected function checkErrors(\SimpleXMLElement $response)
 	{
-		$errors   = array();
-		$warnings = array();
+		$errors = array();
 
-		// Parse the xml response
-		$xml = simplexml_load_string($response);
-
-		if ($xml->Error) {
-			foreach ($xml->Error as $error) {
+		if ($response->Error) {
+			foreach ($response->Error as $error) {
 				$error_data = array(
 					'message' => (string)$error,
 				);
@@ -110,8 +125,15 @@ class HttpClient
 			}
 		}
 
-		if ($xml->Message) {
-			foreach ($xml->Message as $warning) {
+		return $errors;
+	}
+
+	protected function checkWarnings(\SimpleXMLElement $response)
+	{
+		$warnings = array();
+
+		if ($response->Message) {
+			foreach ($response->Message as $warning) {
 				$warning_data = array(
 					'message' => (string)$warning,
 				);
@@ -124,10 +146,6 @@ class HttpClient
 			}
 		}
 
-		return array(
-			'raw'      => $response,
-			'errors'   => $errors,
-			'warnings' => $warnings,
-		);
+		return $warnings;
 	}
 }

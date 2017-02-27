@@ -33,8 +33,15 @@ class Manager
 		return $this->client->getPrvToken();
 	}
 
-	public function send($prv_request, $minify = false)
+	public function send($prv_request, $set_store = true, $minify = false)
 	{
+		if ($set_store) {
+			return $this->client->sendRequest(
+				$this->addProvision($this->addStore($prv_request)),
+				$minify
+			);
+		}
+
 		return $this->client->sendRequest($this->addProvision($prv_request), $minify);
 	}
 
