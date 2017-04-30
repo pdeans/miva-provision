@@ -9,11 +9,13 @@ class Builder
 	protected $store_code;
 	protected $writer;
 
-	public function __construct($store_code)
+	public function __construct($store_code = null)
 	{
 		$this->writer = new XMLWriter();
 
-		$this->setStoreCode($store_code);
+		if ($store_code !== null) {
+			$this->setStoreCode($store_code);
+		}
 	}
 
 	public function setStoreCode($code)
@@ -54,13 +56,15 @@ class Builder
 
 			$this->addTags($tags['@tags']);
 		}
+
+		$this->writer->endElement();
 	}
 
 	protected function addTags(array $tags)
 	{
 		foreach ($tags as $name => $value) {
 			if (is_array($value)) {
-				// Check if this is a numeric array
+				// Check if this is a sequential array
 				if ($value === array_values($value)) {
 					foreach ($value as $tags) {
 						$this->writer->startElement($name);
@@ -95,11 +99,11 @@ class Builder
 		}
 	}
 
-	protected function addTag($tag_name, $value = '')
+	protected function addTag($tag_name, $value = null)
 	{
 		$this->writer->startElement($tag_name);
 
-		if ($value !== 'SELF_CLOSING') {
+		if ($value !== null) {
 			$this->writer->writeRaw($value);
 		}
 
@@ -108,8 +112,6 @@ class Builder
 
 	public function getPrvTag()
 	{
-		$this->writer->endElement();
-
 		return $this->writer->outputMemory();
 	}
 
@@ -120,11 +122,16 @@ class Builder
 
 	public function appendToStore($xml)
 	{
-		return '<Store code="'.$this->store_code.'">'.PHP_EOL.$xml.'</Store>';
+		return '<Store code="'.$this->store_code.'">'.$xml.'</Store>';
+	}
+
+	public function appendToDomain($xml)
+	{
+		return '<Domain>'.$xml.'</Domain>';
 	}
 
 	public function appendToProvision($xml)
 	{
-		return '<Provision>'.PHP_EOL.$xml.PHP_EOL.'</Provision>';
+		return '<Provision>'.$xml.'</Provision>';
 	}
 }
