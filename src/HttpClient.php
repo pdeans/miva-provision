@@ -33,21 +33,11 @@ class HttpClient
 		return $this->prv_token;
 	}
 
-	protected function minifyRequest($request)
-	{
-		return preg_replace('/\s{2,}|[\r\n\t]+/', '', $request);
-	}
-
-	public function sendRequest($request, $minify = false)
+	public function sendRequest($request)
 	{
 		// Check if request was passed in
 		if (!$request) {
 			throw new \Exception('No data was passed into the provision request');
-		}
-
-		// Minify the request
-		if ($minify) {
-			$request = $this->minifyRequest($request);
 		}
 
 		// Create a new curl handler
