@@ -33,16 +33,17 @@ class Manager
 		return $this->client->getPrvToken();
 	}
 
-	public function send($prv_request, $set_store = true, $minify = false)
+	public function send($prv_request, $is_store_request = true)
 	{
-		if ($set_store) {
-			return $this->client->sendRequest(
-				$this->addProvision($this->addStore($prv_request)),
-				$minify
-			);
+		if (!$is_store_request) {
+			return $this->client->sendRequest($prv_request);
 		}
 
-		return $this->client->sendRequest($this->addProvision($prv_request), $minify);
+		return $this->client->sendRequest(
+			$this->addProvision(
+				$this->addStore($prv_request)
+			)
+		);
 	}
 
 	public function setStore($store_code)
@@ -60,6 +61,11 @@ class Manager
 		return $this->builder->appendToStore($prv_xml);
 	}
 
+	public function addDomain($prv_xml)
+	{
+		return $this->builder->appendToDomain($prv_xml);
+	}
+
 	public function addProvision($prv_xml)
 	{
 		return $this->builder->appendToProvision($prv_xml);
@@ -72,6 +78,6 @@ class Manager
 
 	public function create($prv_tag_name, array $tags)
 	{
-		return $this->builder->getPrvTag($this->builder->addPrvTag($prv_tag_name, $tags));
+		return $this->builder->addPrvTag($prv_tag_name, $tags);
 	}
 }
