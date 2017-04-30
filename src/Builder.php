@@ -58,6 +58,8 @@ class Builder
 		}
 
 		$this->writer->endElement();
+
+		return $this->writer->outputMemory();
 	}
 
 	protected function addTags(array $tags)
@@ -108,11 +110,6 @@ class Builder
 		}
 
 		$this->writer->endElement();
-	}
-
-	public function getPrvTag()
-	{
-		return $this->writer->outputMemory();
 	}
 
 	public function cdata($value)
