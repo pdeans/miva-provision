@@ -2,13 +2,33 @@
 
 namespace pdeans\Miva\Provision;
 
+use InvalidArgumentException;
+
 class Manager
 {
 	protected $client;
 	protected $builder;
 
-	public function __construct($store_code, $url, $token)
+	public function __construct($store_code = null, $url = null, $token = null)
 	{
+		if ($store_code === null || $store_code === '') {
+			throw new InvalidArgumentException(
+				'Invalid argument passed to '.__METHOD__.'. Store code cannot be empty.'
+			);
+		}
+
+		if ($url === null || $url === '') {
+			throw new InvalidArgumentException(
+				'Invalid argument passed to '.__METHOD__.'. Url cannot be empty.'
+			);
+		}
+
+		if ($token === null || $token === '') {
+			throw new InvalidArgumentException(
+				'Invalid argument passed to '.__METHOD__.'. Token cannot be empty.'
+			);
+		}
+
 		$this->client  = new HttpClient($url, $token);
 		$this->builder = new Builder($store_code);
 	}
