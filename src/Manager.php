@@ -13,19 +13,34 @@ class Manager
 		$this->builder = new Builder($store_code);
 	}
 
-	public function setUrl($url)
+	public function addDomain($prv_xml)
 	{
-		$this->client->setPrvUrl($url);
+		return $this->builder->appendToDomain($prv_xml);
 	}
 
-	public function getUrl()
+	public function addProvision($prv_xml)
 	{
-		return $this->client->getPrvUrl();
+		return $this->builder->appendToProvision($prv_xml);
 	}
 
-	public function setToken($token)
+	public function addStore($prv_xml)
 	{
-		$this->client->setPrvToken($token);
+		return $this->builder->appendToStore($prv_xml);
+	}
+
+	public function cdata($value)
+	{
+		return $this->builder->cdata($value);
+	}
+
+	public function create($prv_tag_name, array $tags)
+	{
+		return $this->builder->addPrvTag($prv_tag_name, $tags);
+	}
+
+	public function getStore()
+	{
+		return $this->builder->getStoreCode();
 	}
 
 	public function getToken()
@@ -33,9 +48,14 @@ class Manager
 		return $this->client->getPrvToken();
 	}
 
-	public function send($prv_request, $is_store_request = true)
+	public function getUrl()
 	{
-		if (!$is_store_request) {
+		return $this->client->getPrvUrl();
+	}
+
+	public function send($prv_request, $no_add_tags = false)
+	{
+		if ($no_add_tags) {
 			return $this->client->sendRequest($prv_request);
 		}
 
@@ -51,33 +71,13 @@ class Manager
 		$this->builder->setStoreCode($store_code);
 	}
 
-	public function getStore()
+	public function setToken($token)
 	{
-		return $this->builder->getStoreCode();
+		$this->client->setPrvToken($token);
 	}
 
-	public function addStore($prv_xml)
+	public function setUrl($url)
 	{
-		return $this->builder->appendToStore($prv_xml);
-	}
-
-	public function addDomain($prv_xml)
-	{
-		return $this->builder->appendToDomain($prv_xml);
-	}
-
-	public function addProvision($prv_xml)
-	{
-		return $this->builder->appendToProvision($prv_xml);
-	}
-
-	public function cdata($value)
-	{
-		return $this->builder->cdata($value);
-	}
-
-	public function create($prv_tag_name, array $tags)
-	{
-		return $this->builder->addPrvTag($prv_tag_name, $tags);
+		$this->client->setPrvUrl($url);
 	}
 }
