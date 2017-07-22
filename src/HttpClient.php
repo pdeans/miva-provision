@@ -2,42 +2,93 @@
 
 namespace pdeans\Miva\Provision;
 
+use InvalidArgumentException;
+use SimpleXMLElement;
+use stdClass;
+
+/**
+ * Http client for sending xml provision requests and responses
+ */
 class HttpClient
 {
+	/**
+	 * Provision xml request url
+	 *
+	 * @var string
+	 */
 	protected $prv_url;
+
+	/**
+	 * Provision access token
+	 *
+	 * @var string
+	 */
 	protected $prv_token;
 
+	/**
+	 * Create a HttpClient object
+	 *
+	 * @param string  $url  Provision xml request url
+	 * @param string  $token  Provision access token
+	 */
 	public function __construct($url, $token)
 	{
 		$this->setPrvUrl($url);
 		$this->setPrvToken($token);
 	}
 
+	/**
+	 * Set provision xml request url
+	 *
+	 * @param string  $url  Provision xml request url
+	 */
 	public function setPrvUrl($url)
 	{
 		$this->prv_url = $url;
 	}
 
+	/**
+	 * Get provision xml request url
+	 *
+	 * @return string
+	 */
 	public function getPrvUrl()
 	{
 		return $this->prv_url;
 	}
 
+	/**
+	 * Set provision access token
+	 *
+	 * @param string  $token  Provision access token
+	 */
 	public function setPrvToken($token)
 	{
 		$this->prv_token = $token;
 	}
 
+	/**
+	 * Get provision access token
+	 *
+	 * @return string
+	 */
 	public function getPrvToken()
 	{
 		return $this->prv_token;
 	}
 
+	/**
+	 * Send provision request
+	 *
+	 * @param string  $request  Provision request xml
+	 * @return \stdClass  Provision response object
+	 * @throws \InvalidArgumentException  Empty or invalid provision request data
+	 */
 	public function sendRequest($request)
 	{
 		// Check if request was passed in
 		if (!$request) {
-			throw new \Exception('No data was passed into the provision request');
+			throw new InvalidArgumentException('No data was passed into the provision request');
 		}
 
 		// Create a new curl handler
@@ -62,7 +113,7 @@ class HttpClient
 		$response = curl_exec($ch);
 
 		// Create response object to hold response data
-		$response_obj = new \stdClass;
+		$response_obj = new stdClass;
 
 		// Convert the xml response into simple xml element
 		$sxe_response = simplexml_load_string($response);
@@ -96,7 +147,14 @@ class HttpClient
 
 		return $response_obj;
 	}
-	protected function checkErrors(\SimpleXMLElement $response)
+
+	/**
+	 * Check for provision response errors
+	 *
+	 * @param \SimpleXMLElement  $response  Provision request object
+	 * @return array  Array of provision response errors
+	 */
+	protected function checkErrors(SimpleXMLElement $response)
 	{
 		$errors = array();
 
@@ -116,7 +174,13 @@ class HttpClient
 
 		return $errors;
 	}
-	protected function checkWarnings(\SimpleXMLElement $response)
+
+	/**
+	 * Check for provision response warnings
+	 * @param \SimpleXMLElement  $response  Provision request object
+	 * @return array  Array of provision response warnings
+	 */
+	protected function checkWarnings(SimpleXMLElement $response)
 	{
 		$warnings = array();
 
