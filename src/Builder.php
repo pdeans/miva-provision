@@ -173,6 +173,18 @@ class Builder
 	}
 
 	/**
+	 * Format decimal number
+	 *
+	 * @param string|int|float  $value  The decimal value
+	 * @param int  $precision  Decimal precision
+	 * @return string  Formatted decimal number
+	 */
+	public function decimal($value, $precision = 2)
+	{
+		return number_format((float)$value, $precision, '.', '');
+	}
+
+	/**
 	 * Append xml markup to <Store> tag
 	 *
 	 * @param string  $xml  Xml markup

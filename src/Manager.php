@@ -112,6 +112,18 @@ class Manager
 	}
 
 	/**
+	 * Format decimal number
+	 *
+	 * @param string|int|float  $value  The decimal value
+	 * @param int  $precision  Decimal precision
+	 * @return string  Formatted decimal number
+	 */
+	public function decimal($value, $precision = 2)
+	{
+		return $this->builder->decimal($value, $precision);
+	}
+
+	/**
 	 * Get store code
 	 *
 	 * @return string  Current store code
