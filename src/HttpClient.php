@@ -3,6 +3,7 @@
 namespace pdeans\Miva\Provision;
 
 use InvalidArgumentException;
+use pdeans\Http\Client;
 use SimpleXMLElement;
 use stdClass;
 
@@ -26,15 +27,28 @@ class HttpClient
 	protected $prv_token;
 
 	/**
+	 * HTTP client
+	 *
+	 * @var \pdeans\Http\Client
+	 */
+	protected $client;
+
+	/**
 	 * Create a HttpClient object
 	 *
 	 * @param string  $url  Provision xml request url
 	 * @param string  $token  Provision access token
+	 * @param array  $client_options  Http client (cURL) options
 	 */
-	public function __construct($url, $token)
+	public function __construct($url, $token, array $client_options = [])
 	{
 		$this->setPrvUrl($url);
 		$this->setPrvToken($token);
+
+		$this->client = new Client($client_options ?: [
+			CURLOPT_SSL_VERIFYPEER => 0,
+			CURLOPT_SSL_VERIFYHOST => 0,
+		]);
 	}
 
 	/**
@@ -81,7 +95,7 @@ class HttpClient
 	 * Send provision request
 	 *
 	 * @param string  $request  Provision request xml
-	 * @return \stdClass  Provision response object
+	 * @return \Psr\Http\Message\ResponseInterface
 	 * @throws \InvalidArgumentException  Empty or invalid provision request data
 	 */
 	public function sendRequest($request)
@@ -91,113 +105,10 @@ class HttpClient
 			throw new InvalidArgumentException('No data was passed into the provision request');
 		}
 
-		// Create a new curl handler
-		$ch = curl_init($this->prv_url);
-
-		// Set the curl handler options
-		curl_setopt_array($ch, array(
-			CURLOPT_POST           => 1,
-			CURLOPT_SSL_VERIFYPEER => 0,
-			CURLOPT_SSL_VERIFYHOST => 0,
-			CURLOPT_FOLLOWLOCATION => 1,
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_POSTFIELDS     => $request,
-			CURLOPT_HTTPHEADER     => array(
-				'Content-type: text/xml',
-				'MMProvision-Access-Token: ' . $this->prv_token,
-				'Content-length: ' . strlen($request)
-			),
-		));
-
-		// Make curl request, store response data and status code
-		$response = curl_exec($ch);
-
-		// Create response object to hold response data
-		$response_obj = new stdClass;
-
-		// Convert the xml response into simple xml element
-		$sxe_response = simplexml_load_string($response);
-
-		$response_obj->status   = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$response_obj->xml      = $response;
-		$response_obj->response = $sxe_response;
-
-		// If there was a curl error
-		if (curl_errno($ch)) {
-			$response_obj->curl_errorno = curl_errno($ch);
-			$response_obj->curl_error   = curl_error($ch);
-		}
-
-		// Close the curl handler
-		curl_close($ch);
-
-		// Check for response errors
-		$errors = $this->checkErrors($sxe_response);
-
-		if (!empty($errors)) {
-			$response_obj->errors = $errors;
-		}
-
-		// Check for response warnings
-		$warnings = $this->checkWarnings($sxe_response);
-
-		if (!empty($warnings)) {
-			$response_obj->warnings = $warnings;
-		}
-
-		return $response_obj;
-	}
-
-	/**
-	 * Check for provision response errors
-	 *
-	 * @param \SimpleXMLElement  $response  Provision request object
-	 * @return array  Array of provision response errors
-	 */
-	protected function checkErrors(SimpleXMLElement $response)
-	{
-		$errors = array();
-
-		if ($response->Error) {
-			foreach ($response->Error as $error) {
-				$error_data = array(
-					'message' => (string)$error,
-				);
-
-				foreach ($error->attributes() as $name => $code) {
-					$error_data[(string)$name] = (string)$code;
-				}
-
-				$errors[] = $error_data;
-			}
-		}
-
-		return $errors;
-	}
-
-	/**
-	 * Check for provision response warnings
-	 * @param \SimpleXMLElement  $response  Provision request object
-	 * @return array  Array of provision response warnings
-	 */
-	protected function checkWarnings(SimpleXMLElement $response)
-	{
-		$warnings = array();
-
-		if ($response->Message) {
-			foreach ($response->Message as $warning) {
-				$warning_data = array(
-					'message' => (string)$warning,
-				);
-
-				foreach ($warning->attributes() as $name => $value) {
-					$warning_data[(string)$name] = (string)$value;
-				}
-
-				$warnings[] = $warning_data;
-			}
-		}
-
-		return $warnings;
+		return $this->client->post($this->prv_url, [
+			'Content-type'             => 'text/xml',
+			'Content-length'           => strlen($request),
+			'MMProvision-Access-Token' => $this->prv_token,
+		], $request);
 	}
 }
