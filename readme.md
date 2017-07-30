@@ -253,7 +253,7 @@ $xml = $prv->addProvision($xml);
 
 ### Provision Responses
 
-A response object is returned with each provision request via the `send` method. The response object is an instance of the [Slim Framework's](https://www.slimframework.com/) response object, which implements the [PSR-7](http://www.php-fig.org/psr/psr-7/) HTTP message interface. Documentation on methods available for the response object can be found [here](https://www.slimframework.com/docs/objects/response.html#the-response-status).
+A response object is returned with each provision request via the `send` method. The response object is an instance of the Zend Framework's [Diactoros](https://zendframework.github.io/zend-diactoros/) response object, which implements the [PSR-7](http://www.php-fig.org/psr/psr-7/) HTTP message interface.
 
 ### Helper Methods
 
@@ -281,4 +281,4 @@ $prv->setToken('access token');
 
 ### Version Notes
 
-Version 2 currently requires PHP 5.6 or higher, however, version 1 can be used if support for PHP >= 5.3.3 < 5.6 is required.
+Version 2 currently requires PHP 5.4 or higher, however, version 1 can be used if support for PHP 5.3 is required.
