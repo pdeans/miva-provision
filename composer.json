@@ -12,11 +12,11 @@
 	],
 	"require": {
 		"php": "^5.4 || ^7.0",
-		"ext-curl": "*",
-		"pdeans/http": "^1.1"
+		"pdeans/http": "^1.1",
+		"pdeans/xml-builder": "^1.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "4.8"
+		"pdeans/debuggers-vardumper": "^1.0"
 	},
 	"autoload": {
 		"psr-4": {

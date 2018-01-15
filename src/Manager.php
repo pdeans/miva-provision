@@ -108,7 +108,7 @@ class Manager
 	 */
 	public function create($prv_tag_name, array $tags)
 	{
-		return $this->builder->addPrvTag($prv_tag_name, $tags);
+		return $this->builder->create($prv_tag_name, $tags);
 	}
 
 	/**

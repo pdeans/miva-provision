@@ -2,8 +2,6 @@
 
 PHP library consisting of a full toolkit for interacting with Miva's remote provisioning module. The library components include tools for creating Miva provision xml markup, sending provision xml requests, and capturing provision xml responses.
 
-[![CircleCI](https://img.shields.io/circleci/project/pdeans/miva-provision.svg?style=flat-square&maxAge=2592000)]()
-
 ### Installation
 
 Install via [Composer](https://getcomposer.org/).
@@ -34,11 +32,11 @@ Once the manager instance has been created, it may be used to generate provision
 
 ### Creating Provision XML Tags
 
-Arguably the most powerful feature of the library is the simple and extensive provision xml tag builder.
+The library utilizes the simple and extensive pdeans [XML Builder](https://github.com/pdeans/xml-builder) package to easily generate Miva provisioning tags.
 
 #### Using The Provision Tag Builder
 
-The `create` method is used to generate a provision xml tag. The `create` method takes the name of the provision tag as the first argument, and an associative array consisting of the data to build the xml markup as the second argument.
+The `create` method is used to generate a provision xml tag. The `create` method takes the name of the root element (provisioning tag name) as the first argument, and an associative array consisting of the data to build the root attribute elements and/or child elements as the second argument.
 
 Here is a simple example:
 
@@ -62,31 +60,44 @@ This will produce the following xml:
 
 #### Parent/Child Elements
 
-Notice how the array key-values function under the `@tags` array from the above example. The keys represent the xml element name, and the values represent the xml element value. Child tags can also be nested using this pattern with the parent element represented by the array key, and the array value consisting of an array of the child elements as key-value pairs. This pattern can be repeated as needed to nest subsequent child elements.
+Notice how the array key-values function under the `@tags` array from the above example. The keys represent the xml element names, and the values represent the xml element values. Child tags can also be nested following this pattern with the parent element represented by the array key, and the array value consisting of an array of the child elements as key-value pairs. This pattern can be repeated as needed to nest subsequent child elements.
 
 #### Element Value Helpers
 
-The `cdata` helper method can be used to wrap an element value in a `<![CDATA[]]>` tag, while the `decimal` helper method can be used to format a decimal number into standard Miva decimal format (rounds to 2 decimals and strips out commas).
+The `cdata` helper method can be used to wrap an element value in a `<![CDATA[]]>` tag, while the `decimal` helper method can be used to format a decimal number into a standard decimal format, rounding to 2 decimals by default and stripping out commas. The `decimal` helper method accepts an optional second parameter to set the precision.
 
 ```php
-// Will produce: <![CDATA[Class Tools and Skill Kits]]>
-$val = $prv->cdata('Class Tools and Skill Kits');
+// Output: <![CDATA[Class Tools and Skill Kits]]>
+echo $prv->cdata('Class Tools and Skill Kits');
 
-// Will produce: 49.00
-$val = $prv->decimal(49.0000000);
+// Output: 49.00
+echo $prv->decimal(49.0000000);
+
+// Output: 49.001
+echo $prv->decimal(49.0005, 3);
 ```
 
 #### Reserved Keys
 
-The `@tags` key represents one of 3 reserved keys that the xml builder uses to parse and generate the xml. The reserved keys are as follows:
+The `@tags` key represents one of 3 reserved keys (each containing shortcut key counterparts) that the xml builder uses to parse and generate the xml. The reserved keys are as follows:
 
-**@attributes Key**
+**@attributes Key**  
+_Shortcut: **@a**_
 
-The `@attributes` key is used to create xml element attributes. Example:
+The `@attributes` key is used to create xml element attributes. The `@a` key is also supported as a shortcut for the `@attributes` key.
+
+Examples:
 
 ```php
 $xml = $prv->create('CategoryProduct_Assign', [
     '@attributes' => [
+        'category_code' => 'Food',
+        'product_code'  => 'ale-gallon',
+    ],
+]);
+
+$xml = $prv->create('CategoryProduct_Assign', [
+    '@a' => [
         'category_code' => 'Food',
         'product_code'  => 'ale-gallon',
     ],
@@ -99,16 +110,30 @@ XML Produced:
 <CategoryProduct_Assign category_code="Food" product_code="ale-gallon"/>
 ```
 
-**@tags Key**
+**@tags Key**  
+_Shortcut: **@t**_
 
-The `@tags` key accepts an associative array of data to build the child tags for the top-level provision tag. Example:
+The `@tags` key accepts an associative array of data to build the root element's children. The `@t` key is also supported as a shortcut for the `@tags` key.
+
+Examples:
 
 ```php
 $xml = $prv->create('ProductAttribute_Add', [
-    '@attributes' => [
+    '@a' => [
         'product_code' => 'chest',
     ],
     '@tags' => [
+        'Code'   => 'lock',
+        'Type'   => 'select',
+        'Prompt' => $prv->cdata('Lock'),
+    ],
+]);
+
+$xml = $prv->create('ProductAttribute_Add', [
+    '@a' => [
+        'product_code' => 'chest',
+    ],
+    '@t' => [
         'Code'   => 'lock',
         'Type'   => 'select',
         'Prompt' => $prv->cdata('Lock'),
@@ -126,9 +151,12 @@ XML Produced:
 </ProductAttribute_Add>
 ```
 
-**@value Key**
+**@value Key**  
+_Shortcut: **@v**_
 
-The `@value` key explicitly sets an xml element value. Generally, this is only required on xml elements that require both attributes and a value to be set. Example:
+The `@value` key explicitly sets an xml element value. Generally, this is only required on xml elements that require both attributes and a value to be set. The `@v` key is also supported as a shortcut for the `@value` key.
+
+Examples:
 
 ```php
 $xml = $prv->create('Module', [
@@ -146,6 +174,22 @@ $xml = $prv->create('Module', [
         ],
     ],
 ]);
+
+$xml = $prv->create('Module', [
+    '@a' => [
+        'code' => 'customfields',
+        'feature' => 'fields_prod',
+    ],
+    '@t' => [
+        'ProductField_Value' => [
+            '@a' => [
+                'product' => 'chest',
+                'field' => 'armor_type',
+            ],
+            '@v' => 'wood',
+        ],
+    ],
+]);
 ```
 
 XML Produced:
@@ -160,11 +204,11 @@ Note that the `@tags` key is used on the first level only of the associative arr
 
 #### Repeated Tags
 
-Sometimes repeated tags are used in provision tag markup, which does not play nice with associative array key-value pairs. To circumvent this, the element name is still passed as the array key, however, the array value consists of a sequential array of arrays with the tag data.
+Sometimes repeated tags are used in xml, which does not play nice with associative array key-value pairs. To circumvent this, the element name is still passed as the array key, however, the array value consists of a sequential array of arrays with the tag data.
 
 ```php
 $xml = $prv->create('Order_Add', [
-    '@tags' => [
+    '@t' => [
         'Charges' => [
             'Charge' => [
                 [
@@ -208,7 +252,7 @@ To generate a self-closing element without attributes, pass a value of *null* as
 
 ```php
 $xml = $prv->create('Order_Add', [
-    '@tags' => [
+    '@t' => [
         'TriggerFulfillmentModules' => null,
     ],
 ]);

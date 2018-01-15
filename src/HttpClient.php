@@ -4,8 +4,6 @@ namespace pdeans\Miva\Provision;
 
 use InvalidArgumentException;
 use pdeans\Http\Client;
-use SimpleXMLElement;
-use stdClass;
 
 /**
  * Http client for sending xml provision requests and responses
@@ -45,7 +43,7 @@ class HttpClient
 		$this->setPrvUrl($url);
 		$this->setPrvToken($token);
 
-		$this->client = new Client($client_options ?: [
+		$this->client = new Client(!empty($client_options) ? $client_options : [
 			CURLOPT_SSL_VERIFYPEER => 0,
 			CURLOPT_SSL_VERIFYHOST => 0,
 		]);
