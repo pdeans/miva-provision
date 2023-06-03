@@ -1,26 +1,28 @@
 {
-	"name": "pdeans/miva-provision",
-	"type": "library",
-	"description": "Miva remote provision PHP library.",
-	"license": "MIT",
-	"keywords": ["Miva provision", "Miva remote provision", "Miva", "remote provision", "provision"],
-	"authors": [
-		{
-			"name": "Patrick Stearns",
-			"email": "pdeans1986@gmail.com"
-		}
-	],
-	"require": {
-		"php": "^5.4 || ^7.0 || ^8.0",
-		"pdeans/http": "^1.1",
-		"pdeans/xml-builder": "^1.0"
-	},
-	"require-dev": {
-		"pdeans/debuggers-vardumper": "^1.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"pdeans\\Miva\\Provision\\": "src"
-		}
-	}
+    "name": "pdeans/miva-provision",
+    "type": "library",
+    "description": "Miva remote provision PHP library.",
+    "license": "MIT",
+    "keywords": ["Miva provision", "Miva remote provision", "Miva", "remote provision", "provision"],
+    "authors": [
+        {
+            "name": "Patrick Stearns",
+            "email": "pdeans1986@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.4 || ^7.0 || ^8.0",
+        "pdeans/http": "^1.1",
+        "pdeans/xml-builder": "^1.0"
+    },
+    "require-dev": {
+        "pdeans/debuggers-vardumper": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "pdeans\\Miva\\Provision\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

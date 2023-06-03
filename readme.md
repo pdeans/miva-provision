@@ -1,3 +1,5 @@
+> This package is **abandoned** and no longer maintained.
+
 ## Miva Remote Provision
 
 PHP library consisting of a full toolkit for interacting with Miva's remote provisioning module. The library components include tools for creating Miva provision xml markup, sending provision xml requests, and capturing provision xml responses.
@@ -6,8 +8,8 @@ PHP library consisting of a full toolkit for interacting with Miva's remote prov
 
 Install via [Composer](https://getcomposer.org/).
 
-```
-$ composer require pdeans/miva-provision
+```shell
+composer require pdeans/miva-provision
 ```
 
 ### Usage
@@ -81,7 +83,7 @@ echo $prv->decimal(49.0005, 3);
 
 The `@tags` key represents one of 3 reserved keys (each containing shortcut key counterparts) that the xml builder uses to parse and generate the xml. The reserved keys are as follows:
 
-**@attributes Key**  
+**@attributes Key**
 _Shortcut: **@a**_
 
 The `@attributes` key is used to create xml element attributes. The `@a` key is also supported as a shortcut for the `@attributes` key.
@@ -110,7 +112,7 @@ XML Produced:
 <CategoryProduct_Assign category_code="Food" product_code="ale-gallon"/>
 ```
 
-**@tags Key**  
+**@tags Key**
 _Shortcut: **@t**_
 
 The `@tags` key accepts an associative array of data to build the root element's children. The `@t` key is also supported as a shortcut for the `@tags` key.
@@ -151,7 +153,7 @@ XML Produced:
 </ProductAttribute_Add>
 ```
 
-**@value Key**  
+**@value Key**
 _Shortcut: **@v**_
 
 The `@value` key explicitly sets an xml element value. Generally, this is only required on xml elements that require both attributes and a value to be set. The `@v` key is also supported as a shortcut for the `@value` key.
@@ -307,7 +309,7 @@ The manager instance also includes helper methods to easily return or swap out t
 // Get store code
 $store_code = $prv->getStore();
 
-// Set store code 
+// Set store code
 $prv->setStore('store code');
 
 // Get provision request url
